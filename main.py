@@ -647,6 +647,11 @@ if __name__ == "__main__":
     litellm_logger.setLevel(logging.WARNING)
     litellm_logger.propagate = False
 
+    # Suppress openai.agents warning about missing OPENAI_API_KEY (not needed when using OpenRouter)
+    openai_agents_logger = logging.getLogger("openai.agents")
+    openai_agents_logger.setLevel(logging.ERROR)
+    openai_agents_logger.propagate = False
+
     parser = argparse.ArgumentParser(
         description="Run the TemplateBot forecasting system"
     )
@@ -673,17 +678,17 @@ if __name__ == "__main__":
         folder_to_save_reports_to=None,
         skip_previously_forecasted_questions=True,
         extra_metadata_in_explanation=True,
-        # llms={  # choose your model names or GeneralLlm llms here, otherwise defaults will be chosen for you
-        #     "default": GeneralLlm(
-        #         model="openrouter/openai/gpt-4o", # "anthropic/claude-sonnet-4-20250514", etc (see docs for litellm)
-        #         temperature=0.3,
-        #         timeout=40,
-        #         allowed_tries=2,
-        #     ),
-        #     "summarizer": "openai/gpt-4o-mini",
-        #     "researcher": "asknews/news-summaries",
-        #     "parser": "openai/gpt-4o-mini",
-        # },
+        llms={  # choose your model names or GeneralLlm llms here, otherwise defaults will be chosen for you
+            "default": GeneralLlm(
+                model="openrouter/google/gemini-3-pro-preview",  # Using Gemini 3 Pro via OpenRouter
+                temperature=0.3,
+                timeout=40,
+                allowed_tries=2,
+            ),
+            "summarizer": "openrouter/google/gemini-3-pro-preview",  # Optional: use Gemini for summarizer too
+            "researcher": "openrouter/google/gemini-2.0-flash-exp",  # Keep AskNews for research, or change to Gemini if preferred
+            "parser": "openrouter/google/gemini-2.0-flash-exp",  # Optional: use Gemini for parsing too
+        },
     )
 
     client = MetaculusClient()
