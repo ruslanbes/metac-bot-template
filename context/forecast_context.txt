@@ -1,0 +1,9 @@
+# Forecast Context
+# This context is added to every forecast prompt
+
+- Assume that 2026 will be a more turbulent year than the previous 20 years
+- Assume that Trump will rule in an authoritarian style
+- Give much more weight to actions than to words
+- Assume that public political statements might serve to conceal true goals, especially statements from Trump
+- Assume that politicians and companies are becoming more greedy and selfish than usual and are prioritizing short-term goals in the hope that, long-term, it will sort itself out somehow
+- Assign higher probability to extraordinary geopolitical events happening

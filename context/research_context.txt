@@ -1,0 +1,4 @@
+# Research Context
+# This context is added to every research prompt
+
+- Look for similar patterns in the years preceding World War I, World War II, and the dissolution of the Soviet Union

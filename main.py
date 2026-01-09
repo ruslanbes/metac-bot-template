@@ -119,6 +119,35 @@ class SpringTemplateBot2026(ForecastBot):
     _concurrency_limiter = asyncio.Semaphore(_max_concurrent_questions)
     _structure_output_validation_samples = 2
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Load context files
+        self._research_context = self._load_context_file("context/research_context.txt")
+        self._forecast_context = self._load_context_file("context/forecast_context.txt")
+
+    def _load_context_file(self, file_path: str) -> str:
+        """
+        Load context from a text file. Returns empty string if file doesn't exist.
+        """
+        try:
+            from pathlib import Path
+            context_file = Path(__file__).parent / file_path
+            if context_file.exists():
+                content = context_file.read_text(encoding="utf-8")
+                # Remove comments (lines starting with #) and empty lines
+                lines = [
+                    line.strip()
+                    for line in content.split("\n")
+                    if line.strip() and not line.strip().startswith("#")
+                ]
+                return "\n".join(lines) if lines else ""
+            else:
+                logger.warning(f"Context file not found: {file_path}. Using empty context.")
+                return ""
+        except Exception as e:
+            logger.warning(f"Error loading context file {file_path}: {e}. Using empty context.")
+            return ""
+
     ##################################### RESEARCH #####################################
 
     async def run_research(self, question: MetaculusQuestion) -> str:
@@ -126,11 +155,16 @@ class SpringTemplateBot2026(ForecastBot):
             research = ""
             researcher = self.get_llm("researcher")
 
+            # Add research context if available
+            research_context_section = ""
+            if self._research_context:
+                research_context_section = f"\n\nAdditional Research Guidelines:\n{self._research_context}\n"
+
             prompt = clean_indents(
                 f"""
                 You are an assistant to a superforecaster.
                 The superforecaster will give you a question they intend to forecast on.
-                To be a great assistant, you generate a concise but detailed rundown of the most relevant news, including if the question would resolve Yes or No based on current information.
+                Generate a concise but detailed rundown of the most relevant news, including if the question would resolve Yes or No based on current information.
                 You do not produce forecasts yourself.
 
                 Question:
@@ -139,7 +173,9 @@ class SpringTemplateBot2026(ForecastBot):
                 This question's outcome will be determined by the specific criteria below:
                 {question.resolution_criteria}
 
+                Pay attention to these details:
                 {question.fine_print}
+                {research_context_section}
                 """
             )
 
@@ -176,6 +212,11 @@ class SpringTemplateBot2026(ForecastBot):
     async def _run_forecast_on_binary(
         self, question: BinaryQuestion, research: str
     ) -> ReasonedPrediction[float]:
+        # Add forecast context if available
+        forecast_context_section = ""
+        if self._forecast_context:
+            forecast_context_section = f"\n\nAdditional Forecasting Guidelines:\n{self._forecast_context}\n"
+
         prompt = clean_indents(
             f"""
             You are a professional forecaster interviewing for a job.
@@ -197,7 +238,7 @@ class SpringTemplateBot2026(ForecastBot):
             {research}
 
             Today is {datetime.now().strftime("%Y-%m-%d")}.
-
+            {forecast_context_section}
             Before answering you write:
             (a) The time left until the outcome to the question is known.
             (b) The status quo outcome if nothing changed.
@@ -238,6 +279,11 @@ class SpringTemplateBot2026(ForecastBot):
     async def _run_forecast_on_multiple_choice(
         self, question: MultipleChoiceQuestion, research: str
     ) -> ReasonedPrediction[PredictedOptionList]:
+        # Add forecast context if available
+        forecast_context_section = ""
+        if self._forecast_context:
+            forecast_context_section = f"\n\nAdditional Forecasting Guidelines:\n{self._forecast_context}\n"
+
         prompt = clean_indents(
             f"""
             You are a professional forecaster interviewing for a job.
@@ -260,7 +306,7 @@ class SpringTemplateBot2026(ForecastBot):
             {research}
 
             Today is {datetime.now().strftime("%Y-%m-%d")}.
-
+            {forecast_context_section}
             Before answering you write:
             (a) The time left until the outcome to the question is known.
             (b) The status quo outcome if nothing changed.
@@ -317,6 +363,11 @@ class SpringTemplateBot2026(ForecastBot):
         upper_bound_message, lower_bound_message = (
             self._create_upper_and_lower_bound_messages(question)
         )
+        # Add forecast context if available
+        forecast_context_section = ""
+        if self._forecast_context:
+            forecast_context_section = f"\n\nAdditional Forecasting Guidelines:\n{self._forecast_context}\n"
+
         prompt = clean_indents(
             f"""
             You are a professional forecaster interviewing for a job.
@@ -337,12 +388,12 @@ class SpringTemplateBot2026(ForecastBot):
             {research}
 
             Today is {datetime.now().strftime("%Y-%m-%d")}.
-
+            {forecast_context_section}
             {lower_bound_message}
             {upper_bound_message}
 
             Formatting Instructions:
-            - Please notice the units requested and give your answer in these units (e.g. whether you represent a number as 1,000,000 or 1 million).
+            - Note the units requested and give your answer in these units (e.g. whether you represent a number as 1,000,000 or 1 million).
             - Never use scientific notation.
             - Always start with a smaller number (more negative if negative) and then increase from there. The value for percentile 10 should always be less than the value for percentile 20, and so on.
 
@@ -355,7 +406,7 @@ class SpringTemplateBot2026(ForecastBot):
             (f) A brief description of an unexpected scenario that results in a high outcome.
 
             {self._get_conditional_disclaimer_if_necessary(question)}
-            You remind yourself that good forecasters are humble and set wide 90/10 confidence intervals to account for unknown unknowns.
+            Set wide 90/10 confidence intervals to account for unknown unknowns.
 
             The last thing you write is your final answer as:
             "
@@ -411,6 +462,11 @@ class SpringTemplateBot2026(ForecastBot):
         upper_bound_message, lower_bound_message = (
             self._create_upper_and_lower_bound_messages(question)
         )
+        # Add forecast context if available
+        forecast_context_section = ""
+        if self._forecast_context:
+            forecast_context_section = f"\n\nAdditional Forecasting Guidelines:\n{self._forecast_context}\n"
+
         prompt = clean_indents(
             f"""
             You are a professional forecaster interviewing for a job.
@@ -429,7 +485,7 @@ class SpringTemplateBot2026(ForecastBot):
             {research}
 
             Today is {datetime.now().strftime("%Y-%m-%d")}.
-
+            {forecast_context_section}
             {lower_bound_message}
             {upper_bound_message}
 
@@ -662,6 +718,12 @@ if __name__ == "__main__":
         default="tournament",
         help="Specify the run mode (default: tournament)",
     )
+    parser.add_argument(
+        "--tournament-id",
+        type=int,
+        default=None,
+        help="Tournament ID to forecast on (for tournament mode). If provided, forecasts on this tournament instead of AI Competition + MiniBench.",
+    )
     args = parser.parse_args()
     run_mode: Literal["tournament", "metaculus_cup", "test_questions"] = args.mode
     assert run_mode in [
@@ -685,26 +747,35 @@ if __name__ == "__main__":
                 timeout=160,
                 allowed_tries=2,
             ),
-            "summarizer": "openrouter/google/gemini-3-pro-preview",  # Optional: use Gemini for summarizer too
-            "researcher": "openrouter/google/gemini-3-flash-preview",  # Keep AskNews for research, or change to Gemini if preferred
+            "summarizer": "openrouter/google/gemini-3-flash-preview",  # Optional: use Gemini for summarizer too
+            "researcher": "openrouter/perplexity/sonar",  # Keep AskNews for research, or change to Gemini if preferred
             "parser": "openrouter/google/gemini-3-flash-preview",  # Optional: use Gemini for parsing too
         },
     )
 
     client = MetaculusClient()
     if run_mode == "tournament":
-        # You may want to change this to the specific tournament ID you want to forecast on
-        seasonal_tournament_reports = asyncio.run(
-            template_bot.forecast_on_tournament(
-                client.CURRENT_AI_COMPETITION_ID, return_exceptions=True
+        if args.tournament_id:
+            # Forecast on the specified tournament ID
+            template_bot.skip_previously_forecasted_questions = False
+            forecast_reports = asyncio.run(
+                template_bot.forecast_on_tournament(
+                    args.tournament_id, return_exceptions=True
+                )
             )
-        )
-        minibench_reports = asyncio.run(
-            template_bot.forecast_on_tournament(
-                client.CURRENT_MINIBENCH_ID, return_exceptions=True
+        else:
+            # Default: forecast on AI Competition + MiniBench
+            seasonal_tournament_reports = asyncio.run(
+                template_bot.forecast_on_tournament(
+                    client.CURRENT_AI_COMPETITION_ID, return_exceptions=True
+                )
             )
-        )
-        forecast_reports = seasonal_tournament_reports + minibench_reports
+            minibench_reports = asyncio.run(
+                template_bot.forecast_on_tournament(
+                    client.CURRENT_MINIBENCH_ID, return_exceptions=True
+                )
+            )
+            forecast_reports = seasonal_tournament_reports + minibench_reports
     elif run_mode == "metaculus_cup":
         # The Metaculus cup is a good way to test the bot's performance on regularly open questions. You can also use AXC_2025_TOURNAMENT_ID = 32564 or AI_2027_TOURNAMENT_ID = "ai-2027"
         # The Metaculus cup may not be initialized near the beginning of a season (i.e. January, May, September)
