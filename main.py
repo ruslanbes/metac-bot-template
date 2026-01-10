@@ -884,7 +884,7 @@ if __name__ == "__main__":
     )
     parser.add_argument(
         "--tournament-id",
-        type=int,
+        type=str,
         default=None,
         help="Tournament ID to forecast on (for tournament mode). If provided, forecasts on this tournament instead of AI Competition + MiniBench.",
     )
