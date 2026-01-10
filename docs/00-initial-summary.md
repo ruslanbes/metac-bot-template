@@ -30,7 +30,7 @@ The repository serves as a starting point for developers to build AI-powered for
   - Useful for understanding the underlying mechanics
 
 - **`pyproject.toml`**: Poetry-based dependency management
-  - Python 3.11+ requirement
+  - Python 3.12+ requirement
   - Key dependencies: `forecasting-tools`, `openai`, `asknews`, `numpy`, `requests`
   - Development dependencies: `ipykernel`
 
@@ -208,7 +208,7 @@ poetry run python main.py --mode test_questions
 ## Version Information
 
 - **Template Version**: Spring 2026
-- **Python Requirement**: ^3.11 (3.14 fails, but 3.12 works)
+- **Python Requirement**: ^3.12 (3.14 fails, but 3.12 works)
 - **Last Major Updates**:
   - Additional prompting for numeric questions (percentile ordering)
   - Support for conditional and date questions

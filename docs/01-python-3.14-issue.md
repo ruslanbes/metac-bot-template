@@ -21,13 +21,13 @@ This error occurs in the `aiohttp` library used by `litellm` when making API cal
 
 ## Solutions
 
-### Solution 1: Use Python 3.11 or 3.12 (Recommended)
+### Solution 1: Use Python 3.12 (Recommended)
 
-The project specifies `python = "^3.11"` in `pyproject.toml`, which means Python 3.11, 3.12, or 3.13 should work. Python 3.14 is too new and has compatibility issues.
+The project specifies `python = "^3.12"` in `pyproject.toml`, which means Python 3.12 or 3.13 should work. Python 3.14 is too new and has compatibility issues.
 
 **Steps to fix:**
 
-1. Install Python 3.12 (or 3.11):
+1. Install Python 3.12:
    ```bash
    # On macOS with Homebrew
    brew install python@3.12
@@ -128,4 +128,4 @@ The proper fix will come from:
 2. `litellm` updating to use aiohttp in a way compatible with Python 3.14
 3. `forecasting-tools` updating to use compatible versions
 
-Until then, using Python 3.11, 3.12, or 3.13 is the recommended solution.
+Until then, using Python 3.12 or 3.13 is the recommended solution.
