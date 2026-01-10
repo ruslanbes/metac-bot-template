@@ -1,6 +1,5 @@
 import argparse
 import asyncio
-import json
 import logging
 from datetime import datetime, timezone
 import dotenv
@@ -36,7 +35,7 @@ dotenv.load_dotenv()
 logger = logging.getLogger(__name__)
 
 
-class SpringTemplateBot2026(ForecastBot):
+class RuslanBot(ForecastBot):
     """
     This is the template bot for Spring 2026 Metaculus AI Tournament.
     This is a copy of what is used by Metaculus to run the Metac Bots in our benchmark, provided as a template for new bot makers.
@@ -226,13 +225,6 @@ class SpringTemplateBot2026(ForecastBot):
 
     async def run_research(self, question: MetaculusQuestion) -> str:
         async with self._concurrency_limiter:
-            # Dump api_json to file for inspection
-            try:
-                with open("api_json.json", "w", encoding="utf-8") as f:
-                    json.dump(question.api_json, f, indent=2, default=str)
-            except Exception as e:
-                logger.warning(f"Failed to dump api_json: {e}")
-            
             research = ""
             researcher = self.get_llm("researcher")
 
@@ -785,6 +777,82 @@ class SpringTemplateBot2026(ForecastBot):
             """
         )
 
+    def _create_comment(
+        self,
+        question: MetaculusQuestion,
+        research_prediction_collections: list,
+        aggregated_prediction,
+        final_cost: float,
+        time_spent_in_minutes: float,
+    ) -> str:
+        """
+        Override to add "Used contexts" information to the comment.
+        """
+        # Get the base comment from parent class
+        full_explanation = super()._create_comment(
+            question,
+            research_prediction_collections,
+            aggregated_prediction,
+            final_cost,
+            time_spent_in_minutes,
+        )
+        
+        # Determine which contexts were used (combining research and forecast contexts)
+        used_contexts = []
+        
+        # Check if general context exists
+        if self._research_context or self._forecast_context:
+            used_contexts.append("General")
+        
+        # Get all category contexts that exist (for either research or forecast)
+        categories = self._get_question_categories(question)
+        for category_slug in categories:
+            research_cat = self._load_category_context("research", category_slug)
+            forecast_cat = self._load_category_context("forecast", category_slug)
+            if research_cat or forecast_cat:
+                category_title = category_slug.title()
+                if category_title not in used_contexts:
+                    used_contexts.append(category_title)
+        
+        # Add context information to the comment if any contexts were used
+        if used_contexts:
+            context_line = f"*Used Contexts*: {', '.join(used_contexts)}\n\n"
+            # Insert after the SUMMARY section metadata (after "*Bot Name*:" line, before blank line)
+            # The structure is: "# SUMMARY\n*Question*: ...\n*Bot Name*: ...\n\n{summaries}"
+            bot_name_marker = "*Bot Name*:"
+            bot_name_pos = full_explanation.find(bot_name_marker)
+            if bot_name_pos != -1:
+                # Find the end of the Bot Name line (newline after it)
+                line_end = full_explanation.find("\n", bot_name_pos)
+                if line_end != -1:
+                    # Insert after this line, before the blank line
+                    full_explanation = (
+                        full_explanation[:line_end + 1]
+                        + context_line
+                        + full_explanation[line_end + 1:]
+                    )
+                else:
+                    # Fallback: append
+                    full_explanation = full_explanation + "\n\n" + context_line
+            else:
+                # Fallback: try to find "# SUMMARY" and insert after first blank line
+                summary_start = full_explanation.find("# SUMMARY")
+                if summary_start != -1:
+                    first_blank = full_explanation.find("\n\n", summary_start)
+                    if first_blank != -1:
+                        full_explanation = (
+                            full_explanation[:first_blank + 2]
+                            + context_line
+                            + full_explanation[first_blank + 2:]
+                        )
+                    else:
+                        full_explanation = full_explanation + "\n\n" + context_line
+                else:
+                    # Last resort: prepend
+                    full_explanation = context_line + full_explanation
+        
+        return full_explanation
+
 
 if __name__ == "__main__":
     logging.basicConfig(
@@ -833,7 +901,7 @@ if __name__ == "__main__":
         "question",
     ], "Invalid run mode"
 
-    template_bot = SpringTemplateBot2026(
+    template_bot = RuslanBot(
         research_reports_per_question=1,
         predictions_per_research_report=2,
         use_research_summary_to_forecast=False,
