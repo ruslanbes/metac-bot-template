@@ -483,6 +483,7 @@ class RuslanBot(ForecastBot):
             (f) A brief description of an unexpected scenario that results in a high outcome.
 
             {self._get_conditional_disclaimer_if_necessary(question)}
+            Set wide 95/5 confidence intervals to account for unknown unknowns.
 
             The last thing you write is your final answer as:
             "
@@ -586,6 +587,7 @@ class RuslanBot(ForecastBot):
             (f) A brief description of an unexpected scenario that results in a high outcome.
 
             {self._get_conditional_disclaimer_if_necessary(question)}
+            Set wide 95/5 confidence intervals to account for unknown unknowns.
 
             The last thing you write is your final answer as:
             "

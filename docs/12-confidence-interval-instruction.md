@@ -91,8 +91,10 @@ If distributions become too narrow or forecasts become overconfident, restore th
 
 ## Current Status
 
-**Status**: ❌ Removed (as of [current date])
+**Status**: ✅ Reintroduced (as of 2026-01-09)
 
-**Reason**: Testing whether explicit instruction is necessary
+**Location**: 
+- Numeric questions: `_run_forecast_on_numeric()` (line ~485)
+- Date questions: `_run_forecast_on_date()` (line ~588)
 
-**Monitoring**: Watch for overconfidence in forecasts
+**Instruction**: "Set wide 95/5 confidence intervals to account for unknown unknowns."

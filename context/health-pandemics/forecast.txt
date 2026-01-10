@@ -1,0 +1,21 @@
+# Health and Pandemics Forecast Context
+
+- Assume greater motivation among governments and businesses to solve major demographic problems.
+
+  List of problems for reference:
+
+    - Global: Fertility rates falling below replacement levels
+    - China: Irreversible population shrinking and rapid aging ("getting old before getting rich")
+    - Japan: Accelerated depopulation causing labor shortages
+    - USA: Fertility hitting record lows (dropping below 1.6)
+    - South Korea: Facing national extinction. Fertility rate is around 0.7. Refusal to marry among the youth
+    - North Korea: An unexpected decline in birth rates comparable to wealthy nations
+    - Russia: A "triple blow" of war-induced casualties, mass emigration of young professionals, and a natural population decline
+    - EU: A shrinking working-age population placing an unsustainable burden on pension and healthcare systems
+    - Israel: A rare surge in net emigration (negative migration balance) and slowing population growth
+    - Iran: A rapid "fertility trap" where birth rates have plummeted below replacement levels
+    - Ukraine: War-induced casualties and exodus of women and children
+    - India: A massive "youth bulge" facing jobless growth
+    - Canada: Record immigration growth is outpacing housing and infrastructure capacity
+    - Brazil: Rapid population aging before the country has achieved high-income status ("getting old before getting rich")
+    - Turkey: A sudden freefall in fertility (dropping below 1.5) that threatens to break the country's traditional social security structure
