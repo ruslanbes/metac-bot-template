@@ -988,8 +988,19 @@ if __name__ == "__main__":
             # It's already a URL, use as-is
             question_url = question_input
         
-        question = client.get_question_by_url(question_url)
+        # Use "unpack_subquestions" to handle group questions
+        questions_result = client.get_question_by_url(
+            question_url, group_question_mode="unpack_subquestions"
+        )
+        
+        # Handle both single question and list of questions (for group questions)
+        if isinstance(questions_result, list):
+            questions = questions_result
+            logger.info(f"Group question detected: {len(questions)} subquestions found")
+        else:
+            questions = [questions_result]
+        
         forecast_reports = asyncio.run(
-            template_bot.forecast_questions([question], return_exceptions=True)
+            template_bot.forecast_questions(questions, return_exceptions=True)
         )
     template_bot.log_report_summary(forecast_reports)
