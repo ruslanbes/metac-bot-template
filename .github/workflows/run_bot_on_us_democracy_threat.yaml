@@ -1,9 +1,7 @@
-name: Forecast on POTUS Predictions
+name: Forecast on U.S. Democracy Threat Index
 
 on:
   workflow_dispatch:
-  schedule:
-    - cron: "0 2 */30 * *" # runs at 2:00 AM every 30 days
 
 # Add concurrency group to prevent parallel runs
 concurrency:
@@ -32,7 +30,7 @@ jobs:
         run: poetry install --no-interaction --no-root
       - name: Run bot
         run: |
-          poetry run python main.py --mode tournament --tournament-id "32722"
+          poetry run python main.py --mode tournament --tournament-id "us-democracy-threat"
         # this reads the environment variables from the github repository.
         # Store under Settings --> Secrets and variables --> Actions
         env:
